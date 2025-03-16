@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
+using Fusion.Sockets;
 
 public class JoinRoomScreenUI : ScreenUICore, INetworkRunnerCallbacks
 {
@@ -16,12 +18,6 @@ public class JoinRoomScreenUI : ScreenUICore, INetworkRunnerCallbacks
 
     private void Awake()
     {
-        for (int i = 0; i < sessionPoolSize; i++)
-        {
-            GameObject sessionButton = Instantiate(sessionItemPrefab, transform).transform.sessionListParent = sessionListParent.transform;
-            sessionButton.SetActive(false);
-            pool.Enqueue(sessionButton);
-        }
     }
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
@@ -33,7 +29,6 @@ public class JoinRoomScreenUI : ScreenUICore, INetworkRunnerCallbacks
     {
         
     }
-
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) { }
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
@@ -52,4 +47,21 @@ public class JoinRoomScreenUI : ScreenUICore, INetworkRunnerCallbacks
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
+
+    // "public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
+	// {
+	// 	//Debug.Log("SessionListUpdated:\n" + string.Join("\n", sessionList.Select(s => $"{s.Name} [{s.PlayerCount}/{s.MaxPlayers}]")));
+
+	// 	int i = 0;
+	// 	for (; i < sessionList.Count; i++)
+	// 	{
+	// 		SessionInfo sessionInfo = sessionList[i];
+	// 		GetSessionItem(i).Init(sessionInfo.Name, sessionInfo.PlayerCount, sessionInfo.MaxPlayers, sessionInfo.IsOpen);
+	// 	}
+
+	// 	for (; i < sessionItems.Count; i++)
+	// 	{
+	// 		sessionItems[i].Disable();
+	// 	}
+	// }"
 }

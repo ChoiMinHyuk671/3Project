@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-public enum Scene
+public enum SceneType
 {
     Lobby = 0,
     InGame = 2
@@ -39,9 +39,9 @@ public class SceneController : NetworkSceneManagerDefault
         yield return StartCoroutine(ScreenFader.FadeIn(PageType.Loading));
     }
 
-    public static void SceneTransition(Scene scene)
+    public static void SceneTransition(SceneType scene)
     {
-        Runner.LoadScene(SceneRef.FromIndex((int)scene));
+        Instance.Runner.LoadScene(SceneRef.FromIndex((int)scene));
     }
 
 

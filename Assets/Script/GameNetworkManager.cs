@@ -50,7 +50,7 @@ public class GameNetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 		if (runner.IsServer)
 		{
 			var roomPlayer = runner.Spawn(roomPlayerPrefab, Vector3.zero, Quaternion.identity, player);
-            SceneController.SceneTransition(runner,Scene.InGame);
+            SceneController.SceneTransition(SceneType.InGame);
 		}
 	}
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
