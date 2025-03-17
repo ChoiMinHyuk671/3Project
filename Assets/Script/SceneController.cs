@@ -41,7 +41,15 @@ public class SceneController : NetworkSceneManagerDefault
 
     public static void SceneTransition(SceneType scene)
     {
-        Instance.Runner.LoadScene(SceneRef.FromIndex((int)scene));
+        if (Instance.Runner != null)
+{
+    Instance.Runner.LoadScene(SceneRef.FromIndex((int)scene));
+}
+else
+{
+    Debug.LogWarning("System : Scene Null - Runner is not initialized.");
+}
+
     }
 
 

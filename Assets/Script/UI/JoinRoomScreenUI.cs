@@ -2,33 +2,81 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Fusion;
 using Fusion.Sockets;
+using TMPro;
 
 public class JoinRoomScreenUI : ScreenUICore, INetworkRunnerCallbacks
 {
-    public NetworkRunner _runner;
     public Transform sessionListParent;  // 세션 목록 UI 부모 오브젝트
     public GameObject sessionItemPrefab; // 세션 UI 프리팹
-    private float timer;
-    private int sessionPoolSize;
-
+    [SerializeField] private TMP_InputField inputField; 
     private Queue<GameObject> sessionPool = new Queue<GameObject>(); // 오브젝트 풀
     private List<GameObject> activeSessions = new List<GameObject>(); // 활성화된 세션 목록
 
-    private void Awake()
+    private void Start()
     {
+        inputField.onValueChanged.AddListener(x => {ServerInfo.sessionName = x; Debug.Log($"System : RoomName Change => {ServerInfo.sessionName}");});
+        // 풀 크기 초기화 (최대 10개 정도 미리 생성해둠)
+        for (int i = 0; i < 10; i++)
+        {
+            GameObject sessionItem = Instantiate(sessionItemPrefab, sessionListParent);
+            sessionItem.SetActive(false);
+            sessionPool.Enqueue(sessionItem);
+        }
+        GameNetworkManager.Instance._runner.AddCallbacks(this); // 콜백 등록
     }
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
     {
+
+            foreach (var session in sessionList)
+            {
+                Debug.Log( $"- {session.Name} (플레이어 {session.PlayerCount}/{session.MaxPlayers})\n");
+            }
         UpdateSessionUI(sessionList);
     }
 
     private void UpdateSessionUI(List<SessionInfo> sessionList)
     {
-        
+        int i = 0;
+        // 기존 활성 세션들을 반환하기 전에 모두 풀로 되돌리기
+        foreach (var session in activeSessions)
+        {
+            session.SetActive(false);
+            sessionPool.Enqueue(session);
+        }
+        activeSessions.Clear();
+
+        // 필요한 개수만큼 세션 가져와서 UI 업데이트
+        for (; i < sessionList.Count; i++)
+        {
+            GameObject sessionItem = GetSessionItem();
+            sessionItem.GetComponent<SessionItemUI>().Init(
+                sessionList[i].Name, 
+                sessionList[i].PlayerCount, 
+                sessionList[i].MaxPlayers, 
+                sessionList[i].IsOpen
+            );
+            sessionItem.SetActive(true);
+            activeSessions.Add(sessionItem);
+        }
     }
+
+    private GameObject GetSessionItem()
+    {
+        // 풀에서 사용 가능한 오브젝트 가져오기
+        if (sessionPool.Count > 0)
+        {
+            return sessionPool.Dequeue();
+        }
+
+        // 풀이 부족하면 새로 생성
+        GameObject newSessionItem = Instantiate(sessionItemPrefab, sessionListParent);
+        return newSessionItem;
+    }
+
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) { }
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
@@ -47,21 +95,4 @@ public class JoinRoomScreenUI : ScreenUICore, INetworkRunnerCallbacks
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
-
-    // "public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
-	// {
-	// 	//Debug.Log("SessionListUpdated:\n" + string.Join("\n", sessionList.Select(s => $"{s.Name} [{s.PlayerCount}/{s.MaxPlayers}]")));
-
-	// 	int i = 0;
-	// 	for (; i < sessionList.Count; i++)
-	// 	{
-	// 		SessionInfo sessionInfo = sessionList[i];
-	// 		GetSessionItem(i).Init(sessionInfo.Name, sessionInfo.PlayerCount, sessionInfo.MaxPlayers, sessionInfo.IsOpen);
-	// 	}
-
-	// 	for (; i < sessionItems.Count; i++)
-	// 	{
-	// 		sessionItems[i].Disable();
-	// 	}
-	// }"
 }

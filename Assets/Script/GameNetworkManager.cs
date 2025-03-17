@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class GameNetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 {
-    private NetworkRunner _runner;
+    public static GameNetworkManager Instance;
+    public NetworkRunner _runner { get; private set; }
 
     public GameMode _gameMode;
 
@@ -19,15 +20,8 @@ public class GameNetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 
     void Awake()
     {
-        ServerInfo.maxPlayers = 2; 
-        ServerInfo.sessionName = "Test1";
-        ServerInfo.sessionName = "Player2";
-        JoinOrCreateLobby();
-    }
-
-    public void JoinOrCreateLobby()
-	{
-		GameObject go = new GameObject("Session");
+        Instance = this;
+        GameObject go = new GameObject("Session");
 		DontDestroyOnLoad(go);
 
 		_runner = go.AddComponent<NetworkRunner>();
@@ -35,22 +29,31 @@ public class GameNetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 		_runner.ProvideInput = _gameMode != GameMode.Server;
 		_runner.AddCallbacks(this);
 
+        // NetworkRunner 초기화
+        _runner.JoinSessionLobby(SessionLobby.ClientServer);
+    }
+
+    public void JoinOrCreateLobby()
+	{
 		_runner.StartGame(new StartGameArgs
-		{
-			GameMode = _gameMode,
-			SessionName = ServerInfo.sessionName,
-			SceneManager = SceneController.Instance,
-			PlayerCount = ServerInfo.maxPlayers,
-			EnableClientSessionCreation = false
-		});
+        {
+            GameMode = _gameMode,  // 참가자로 들어감
+            SessionName = ServerInfo.sessionName,
+            SceneManager = SceneController.Instance,
+            PlayerCount = ServerInfo.maxPlayers
+        });
 	}
+
+    public void Test()
+    {
+        SceneController.SceneTransition(SceneType.InGame);
+    }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
 	{
 		if (runner.IsServer)
 		{
 			var roomPlayer = runner.Spawn(roomPlayerPrefab, Vector3.zero, Quaternion.identity, player);
-            SceneController.SceneTransition(SceneType.InGame);
 		}
 	}
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }

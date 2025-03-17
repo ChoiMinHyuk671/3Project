@@ -9,11 +9,11 @@ public class PlayerEntity : PlayerComponent //필요한 컴포넌트의 집합�
 	[SerializeField] protected Animator _Animator;
 	//[SerializeField] protected InputHandler _InputHandler;
 	[SerializeField] protected PlayerController _PlayerController;
-	//[SerializeField] protected PlayerCamera _PlayerCamera;
+	[SerializeField] protected PlayerCamera _PlayerCamera;
 	public Animator m_Animator { get => _Animator; protected set => _Animator = value; }
 	public PlayerController m_PlayerController { get => _PlayerController; protected set => _PlayerController = value; }
 	//public InputHandler m_InputHandler { get => _InputHandler; protected set => _InputHandler = value; }
-	//public PlayerCamera m_PlayerCamera { get => _PlayerCamera; protected set => _PlayerCamera = value; }
+	public PlayerCamera m_PlayerCamera { get => _PlayerCamera; protected set => _PlayerCamera = value; }
 	public static readonly List<PlayerEntity> players = new List<PlayerEntity>();
 	//public ChangeDetector _changeDetector;
 
@@ -22,7 +22,7 @@ public class PlayerEntity : PlayerComponent //필요한 컴포넌트의 집합�
 		m_Animator = GetComponent<Animator>();
 		m_PlayerController = GetComponent<PlayerController>();
 		// m_InputHandler = GetComponent<InputHandler>();
-		// m_PlayerCamera = GetComponent<PlayerCamera>();
+		m_PlayerCamera = GetComponent<PlayerCamera>();
 
 		var components = GetComponentsInChildren<PlayerComponent>();
 

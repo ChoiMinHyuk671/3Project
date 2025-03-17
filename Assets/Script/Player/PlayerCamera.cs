@@ -9,9 +9,10 @@ public class PlayerCamera : PlayerComponent
     [SerializeField] private CinemachineVirtualCamera dialogModCamera;
     [SerializeField] private CinemachineVirtualCamera zoomModCamera;
 
-    void Awake()
+    void Start()
     {
-        SwitchCamera(normalModCamera);
+        if(RoomPlayer.local == m_PlayerEntity.m_PlayerController.roomPlayer)
+            SwitchCamera(normalModCamera);
     }
     private void SwitchCamera(CinemachineVirtualCamera targetCamera)
     {
